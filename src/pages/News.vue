@@ -1,5 +1,5 @@
 <template>
-  <div id="list">
+  <div id="list" class='weui-cells'>
     <div class="err" @click="getTodos" v-if="err">{{err}}</div>
     <item v-else v-for="(item,index) of list" :key="index" :data="item" :id="index"/>
   </div>
