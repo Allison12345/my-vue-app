@@ -5,6 +5,7 @@
     <info :info="text"/>
     <my-input />
     <str />
+    <router-link to="mystate">my state</router-link>
   </div>
 </template>
 
