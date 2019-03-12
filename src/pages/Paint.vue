@@ -1,5 +1,12 @@
 <template>
-  <canvas ref="list" @touchstart="onTouchStart" @touchmove="onTouchMove"></canvas>
+  <canvas
+    width=500
+    height=500
+    @mousedown="onMouseDown"
+    @mousemove="onMouseMove"
+    @mouseup="onMouseUp"
+    ref="canvas"
+  ></canvas>
 </template>
 <script>
 export default {
@@ -7,30 +14,56 @@ export default {
   data() {
     return {
       startX: 0,
-      startY: 0
+      startY: 0,
+      start: false
     };
   },
+  mounted() {
+    this.init();
+  },
   methods: {
-    onTouchStart() {
-      var canvas = this.$refs.list;
-      var c = canvas.getContext("2d");
-      c.strokeStyle = "#f00";
-      c.beginPath();
-      this.startX = event.changedTouches[0].clientx;
-      this.startY = event.changedTouches[0].clientY;
-      c.moveTo(this.startX, this.startY);
+    init() {
+      this.canvas = this.$refs.canvas;
+      this.c = this.canvas.getContext("2d");
+      this.c.lineWidth = 5;
+      // #fff white
     },
-    onTouchMove() {}
+    onMouseDown(e) {
+      this.start = true;
+      this.startX = e.clientX - e.target.offsetLeft;
+      this.startY =
+        e.clientY - e.target.offsetTop + document.documentElement.scrollTop;
+      this.c.beginPath();
+      this.c.moveTo(this.startX, this.startY);
+    },
+    onMouseMove(e) {
+      if (this.start) {
+        const startX = e.clientX - e.target.offsetLeft;
+        const startY =
+          e.clientY - e.target.offsetTop + document.documentElement.scrollTop;
+        console.log(this.startX, this.startY, "->", startX, startY);
+        this.c.lineTo(startX, startY);
+        this.c.strokeStyle = "#fff";
+        this.c.stroke();
+        this.startX = startX;
+        this.startY = startY;
+      }
+    },
+    onMouseUp(e) {
+      this.start = false;
+    }
   }
 };
 </script>
+
 <style>
+html,
 body {
-  width: "100%";
-  height: "100%";
+  width: 100%;
+  height: 100%;
 }
-.list {
-  width: "100%";
-  height: "100%";
+canvas {
+  background-color: blueviolet;
+  display: block
 }
 </style>
