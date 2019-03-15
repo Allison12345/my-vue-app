@@ -1,12 +1,17 @@
 <template>
-  <canvas
-    width=500
-    height=500
-    @mousedown="onMouseDown"
-    @mousemove="onMouseMove"
-    @mouseup="onMouseUp"
-    ref="canvas"
-  ></canvas>
+  <div>
+    <canvas
+      width="500"
+      height="500"
+      @mousedown="onMouseDown"
+      @mousemove="onMouseMove"
+      @mouseup="onMouseUp"
+      ref="canvas"
+    ></canvas>
+    <button v-on:click="save()">save</button>
+    <input type="file" name="myImage" id="myImage" onchange="preImg(this.id,'imgPre')"/>
+    <img id="imgPre" src='' style="display:block">
+  </div>
 </template>
 <script>
 export default {
@@ -51,6 +56,29 @@ export default {
     },
     onMouseUp(e) {
       this.start = false;
+    },
+
+    save() {
+      var mycanvas = this.$refs.canvas;
+      var image = mycanvas.toDataURL("image/png");
+      var w = window.open("about:blank", "image from canvas");
+      w.document.write("<img src='" + image + "' alt='from canvas'/>");
+    },
+    preImg(source, target) {
+      this.c.clearRect(0, 0, 500, 500);
+      if (typeof FileReader === "undefined") {
+        alert("Your browser does not support FileReader...");
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = document.getElementById(target);
+        img.src = this.result;
+        img.onload = function() {
+          this.c.drawImage(img, 0, 0);
+        };
+      };
+      reader.readAsDataURL(document.getElementById(source).files[0]);
     }
   }
 };
@@ -64,6 +92,6 @@ body {
 }
 canvas {
   background-color: blueviolet;
-  display: block
+  display: block;
 }
 </style>
