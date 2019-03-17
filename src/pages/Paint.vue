@@ -8,9 +8,8 @@
       @mouseup="onMouseUp"
       ref="canvas"
     ></canvas>
-    <button v-on:click="save()">save</button>
-    <input type="file" name="myImage" id="myImage" onchange="preImg(this.id,'imgPre')"/>
-    <img id="imgPre" src='' style="display:block">
+    <button @click="save">save</button>
+    <input type="file" @change="onChange">
   </div>
 </template>
 <script>
@@ -46,7 +45,6 @@ export default {
         const startX = e.clientX - e.target.offsetLeft;
         const startY =
           e.clientY - e.target.offsetTop + document.documentElement.scrollTop;
-        console.log(this.startX, this.startY, "->", startX, startY);
         this.c.lineTo(startX, startY);
         this.c.strokeStyle = "#fff";
         this.c.stroke();
@@ -54,31 +52,35 @@ export default {
         this.startY = startY;
       }
     },
-    onMouseUp(e) {
+    onMouseUp() {
       this.start = false;
     },
-
     save() {
-      var mycanvas = this.$refs.canvas;
-      var image = mycanvas.toDataURL("image/png");
-      var w = window.open("about:blank", "image from canvas");
-      w.document.write("<img src='" + image + "' alt='from canvas'/>");
+      const a = document.createElement("a");
+      a.href = this.$refs.canvas.toDataURL("image/png");
+      a.download = "pic";
+      a.click();
     },
-    preImg(source, target) {
-      this.c.clearRect(0, 0, 500, 500);
-      if (typeof FileReader === "undefined") {
-        alert("Your browser does not support FileReader...");
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var img = document.getElementById(target);
-        img.src = this.result;
-        img.onload = function() {
-          this.c.drawImage(img, 0, 0);
+    onChange(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = e => {
+          const { width, height } = e.target;
+          let imgWidth = 500;
+          let imgHeight = 500;
+          if (width > height) {
+            imgHeight = height / (width / 500);
+          } else {
+            imgWidth = width / (height / 500);
+          }
+          this.c.clearRect(0, 0, 500, 500);
+          this.c.drawImage(img, 0, 0, imgWidth, imgHeight);
         };
       };
-      reader.readAsDataURL(document.getElementById(source).files[0]);
+      reader.readAsDataURL(file);
     }
   }
 };
@@ -93,5 +95,10 @@ body {
 canvas {
   background-color: blueviolet;
   display: block;
+}
+
+img {
+  width: 500px;
+  height: auto;
 }
 </style>
